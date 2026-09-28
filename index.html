@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="hu" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LEGO EV3 Robotika Tudásbázis & Portál - 7. Osztály</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .code-font {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Tab active / hidden transitions */
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.25s ease-out forwards;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Print optimizations: prints only the actively viewed module neatly */
+    @media print {
+      body { background: white !important; padding: 0 !important; color: black !important; }
+      .no-print { display: none !important; }
+      .tab-content { display: none !important; }
+      .tab-content.active { display: block !important; }
+      .shadow-xl, .shadow-md, .shadow-lg, .shadow-2xl { box-shadow: none !important; }
+      .border { border-color: #cbd5e1 !important; }
+      .page-break { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col antialiased">
+
+  <!-- Felső Navigációs Sáv -->
+  <header class="no-print sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Logó és Cím -->
+        <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('dashboard')">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-rose-600 flex items-center justify-center text-white text-xl shadow-md">
+            🤖
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-extrabold text-slate-900 tracking-tight text-base sm:text-lg">LEGO EV3 Portál</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded border border-indigo-200">7. Osztály</span>
+            </div>
+            <span class="text-xs text-slate-500 hidden sm:block">Digitális Robotika Tudástár & Tantermi Segédletek</span>
+          </div>
+        </div>
+
+        <!-- Menüpontok (Desktop) -->
+        <nav class="hidden md:flex items-center gap-1.5 text-xs font-semibold">
+          <button id="nav-btn-dashboard" onclick="switchTab('dashboard')" class="nav-btn px-3 py-2 rounded-lg transition text-indigo-700 bg-indigo-50 border border-indigo-200">
+            🏠 Főoldal
+          </button>
+          <button id="nav-btn-modul-1" onclick="switchTab('modul-1')" class="nav-btn px-3 py-2 rounded-lg transition text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent">
+            🔌 1. Első lépések
+          </button>
+          <button id="nav-btn-modul-2" onclick="switchTab('modul-2')" class="nav-btn px-3 py-2 rounded-lg transition text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent">
+            🚗 2. Mozgás & Kormányzás
+          </button>
+        </nav>
+
+        <!-- Akció gombok -->
+        <div class="flex items-center gap-2">
+          <button onclick="window.print()" title="Oldal nyomtatása / PDF mentése" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-3 py-2 rounded-lg text-xs flex items-center gap-1.5 shadow-sm transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            <span class="hidden sm:inline">Nyomtatás / PDF</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Mobil alsó gyorsmenü sáv -->
+    <div class="md:hidden flex border-t border-slate-200 bg-slate-50/90 text-xs px-3 py-2 justify-around font-medium text-slate-600">
+      <button onclick="switchTab('dashboard')" class="flex items-center gap-1 py-1 px-2 rounded hover:bg-white">🏠 Főoldal</button>
+      <button onclick="switchTab('modul-1')" class="flex items-center gap-1 py-1 px-2 rounded hover:bg-white">🔌 1. Lépések</button>
+      <button onclick="switchTab('modul-2')" class="flex items-center gap-1 py-1 px-2 rounded hover:bg-white">🚗 2. Mozgás</button>
+    </div>
+  </header>
+
+  <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+    <!-- =================================================================== -->
+    <!-- 1. FŐOLDAL / IRÁNYÍTÓPULT NÉZET (DASHBOARD)                        -->
+    <!-- =================================================================== -->
+    <section id="view-dashboard" class="tab-content active space-y-8">
+      
+      <!-- Üdvözlő Hero Banner -->
+      <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-6 sm:p-10 shadow-xl relative overflow-hidden border border-indigo-900/50">
+        <div class="relative z-10 max-w-2xl">
+          <span class="inline-block bg-indigo-500/30 text-indigo-300 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-indigo-400/30 mb-3">
+            7. Osztályos Robotika Kurzus
+          </span>
+          <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+            LEGO MINDSTORMS EV3 & MakeCode
+          </h1>
+          <p class="text-sm sm:text-base text-slate-300 mt-3 leading-relaxed">
+            Itt találod az órákon használt összes segédletet, kódmagyarázatot, küldetést és tantermi kihívást. Válaszd ki a mai leckét, és keltsd életre a robotodat!
+          </p>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <button onclick="switchTab('modul-1')" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-5 py-2.5 rounded-xl shadow-lg transition text-xs sm:text-sm flex items-center gap-2">
+              🚀 1. Lecke: Kezdő Lépések
+            </button>
+            <button onclick="switchTab('modul-2')" class="bg-white/10 hover:bg-white/20 text-white font-bold px-5 py-2.5 rounded-xl border border-white/20 transition text-xs sm:text-sm flex items-center gap-2">
+              🎮 2. Lecke: Mozgás és Kanyarodás
+            </button>
+          </div>
+        </div>
+
+        <!-- Háttér dekoráció -->
+        <div class="absolute -right-10 -bottom-10 opacity-10 text-[220px] font-mono font-black select-none pointer-events-none text-white">
+          EV3
+        </div>
+      </div>
+
+      <!-- Modulok és Tananyagok Rácsa -->
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-xl font-extrabold text-slate-900">Tanévi Modulok & Segédletek</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Kattints a kártyára a részletes infografika megnyitásához</p>
+          </div>
+          <span class="text-xs font-semibold bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full border border-emerald-200">2 Aktív Modul</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+          <!-- 1. KÁRTYA: Első lépések (ELÉRHETŐ) -->
+          <div onclick="switchTab('modul-1')" class="group bg-white rounded-2xl p-6 border-2 border-slate-200 hover:border-indigo-500 shadow-sm hover:shadow-xl transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-2 h-full bg-rose-500"></div>
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-rose-600 bg-rose-50 px-2.5 py-1 rounded border border-rose-200">1. Modul</span>
+                <span class="text-xs font-mono font-semibold text-slate-400">45 perc</span>
+              </div>
+              <h3 class="text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition">
+                Hogyan keltsük életre a robotot?
+              </h3>
+              <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                A kocka anatómiája, bekapcsolás, csatlakozók (motor vs szenzor), MakeCode felület, azonnali vs gombnyomásos indítás és a kód rátöltése USB-n.
+              </p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-indigo-600">
+              <span>Segédlet megnyitása →</span>
+              <span class="text-base">🔌</span>
+            </div>
+          </div>
+
+          <!-- 2. KÁRTYA: Mozgás és Kormányzás (ELÉRHETŐ) -->
+          <div onclick="switchTab('modul-2')" class="group bg-white rounded-2xl p-6 border-2 border-slate-200 hover:border-indigo-500 shadow-sm hover:shadow-xl transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-2 h-full bg-emerald-500"></div>
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">2. Modul</span>
+                <span class="text-xs font-mono font-semibold text-slate-400">45 perc</span>
+              </div>
+              <h3 class="text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition">
+                Mozgásvezérlés & Kormányzás
+              </h3>
+              <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                A <code class="code-font text-emerald-700 bg-emerald-50 px-1 py-0.5 rounded">steer motors</code> blokk darabokra szedve: turn ratio skála, sebesség, 90°-os sarokfordulás és a 3 szintes tantermi kihívás.
+              </p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-indigo-600">
+              <span>Infografika megnyitása →</span>
+              <span class="text-base">🚗</span>
+            </div>
+          </div>
+
+          <!-- 3. KÁRTYA: Szenzorok (JÖVŐBELI ELŐKÉSZÍTVE) -->
+          <div class="bg-slate-50/70 rounded-2xl p-6 border border-dashed border-slate-300 flex flex-col justify-between opacity-70">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 bg-slate-200 px-2.5 py-1 rounded">3. Modul (Hamarosan)</span>
+                <span class="text-xs font-mono font-semibold text-slate-400">Következő óra</span>
+              </div>
+              <h3 class="text-lg font-bold text-slate-700">
+                Érzékszervek: Ultrahang & Színszenzor
+              </h3>
+              <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                Hogyan lát a robot a távolba? Akadálykikerülés ultrahanggal és vonalkövetés a színszenzor segítségével.
+              </p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-slate-200 text-xs font-medium text-slate-400 flex items-center justify-between">
+              <span>Hamarosan elérhető</span>
+              <span class="text-base">👀</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Interaktív Matematikai & Fizikai Segédeszköz: Kerékfordulat Kalkulátor -->
+      <div class="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-md">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-4 mb-5">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded border border-amber-200">Tantermi Segédlet</span>
+              <h2 class="text-lg font-bold text-slate-900">EV3 Kerékfordulat & Távolság Kalkulátor</h2>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">Alapkészletes szabványos EV3 kerékkel (Átmérő: 56 mm = 5,6 cm | Kerület: ~17,6 cm)</p>
+          </div>
+          <span class="text-xs font-mono text-slate-400">π ≈ 3.1416</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+          <!-- Bemenetek -->
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                Opció A: Tudd meg, hány centimétert tesz meg a megadott fordulattal:
+              </label>
+              <div class="flex items-center gap-2">
+                <input type="number" id="calc-rotations" value="10" step="0.1" min="0" oninput="calcFromRotations()" class="w-32 code-font font-bold text-base px-3 py-2 border-2 border-indigo-200 rounded-lg focus:border-indigo-600 focus:outline-none text-center">
+                <span class="text-xs font-bold text-slate-600">kerékfordulat (rotations)</span>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                Opció B: Tudd meg, hány fordulatra van szükség egy adott távolsághoz:
+              </label>
+              <div class="flex items-center gap-2">
+                <input type="number" id="calc-distance" value="176" step="1" min="0" oninput="calcFromDistance()" class="w-32 code-font font-bold text-base px-3 py-2 border-2 border-emerald-200 rounded-lg focus:border-emerald-600 focus:outline-none text-center">
+                <span class="text-xs font-bold text-slate-600">centiméter (cm)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Eredmény doboz -->
+          <div class="bg-slate-900 text-white rounded-xl p-5 border border-slate-800">
+            <span class="text-[11px] uppercase tracking-wider font-bold text-slate-400 block mb-1">Kiszámított érték:</span>
+            <div id="calc-result" class="text-2xl sm:text-3xl font-black code-font text-emerald-400">
+              10 fordulat ≈ 176.0 cm
+            </div>
+            <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+              💡 <strong>Képlet:</strong> <span class="code-font text-amber-300">Távolság (cm) = Fordulat × (5.6 cm × π)</span><br>
+              A robot tömege és a padló súrlódása miatt 2-3 cm eltérés előfordulhat a valóságban!
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- =================================================================== -->
+    <!-- 2. MODUL 1 NÉZET: ELSŐ LÉPÉSEK AZ EV3-MAL                          -->
+    <!-- =================================================================== -->
+    <section id="view-modul-1" class="tab-content space-y-6">
+      
+      <!-- Fejléc Vissza gombbal -->
+      <div class="no-print flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <button onclick="switchTab('dashboard')" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1.5 transition">
+          ← Vissza a Modulválasztóhoz
+        </button>
+        <button onclick="switchTab('modul-2')" class="text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition">
+          Következő: 2. Mozgás & Kormányzás →
+        </button>
+      </div>
+
+      <!-- Fő dokumentum kártya -->
+      <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 md:p-8 page-break">
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between border-b pb-5 mb-6 gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-200">1. Modul</span>
+              <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-200">MakeCode EV3</span>
+            </div>
+            <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 mt-2">Hogyan keltsük életre a robotot?</h1>
+            <p class="text-sm text-slate-500 mt-1">Bekapcsolás, csatlakozók, MakeCode felület, indítási módok és a program feltöltése</p>
+          </div>
+          <div class="text-left md:text-right flex md:flex-col items-center md:items-end gap-2 md:gap-0">
+            <span class="text-xs font-semibold text-slate-400 block">7. OSZTÁLY</span>
+            <span class="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded font-mono font-bold mt-1">ALAPOZÓ ÚTMUTATÓ</span>
+          </div>
+        </div>
+
+        <!-- 1. Lépés: Kocka bekapcsolás és portok -->
+        <div class="mb-8">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="flex items-center justify-center w-7 h-7 rounded-full bg-slate-900 text-white font-bold text-xs">1</span>
+            <h2 class="text-lg font-extrabold text-slate-900">Az EV3 „Agy” bekapcsolása és kezelőszervei</h2>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Gombok -->
+            <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 flex flex-col justify-between">
+              <div>
+                <div class="font-bold text-slate-800 text-sm mb-1 flex items-center gap-1.5">
+                  <span>🔘</span> Gombok használata
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed mt-1">
+                  • <strong>Bekapcsolás:</strong> Nyomd meg egyszer a középső, sötétszürke gombot! Várj kb. 30 másodpercet, míg a piros villogásból <strong>folyamatos zöld fény</strong> lesz.
+                </p>
+                <p class="text-xs text-slate-600 leading-relaxed mt-2">
+                  • <strong>Kikapcsolás:</strong> Nyomd a bal felső (Vissza) gombot a főképernyőig, majd még egyszer. Válaszd ki a pipát a középső gombbal!
+                </p>
+              </div>
+              <div class="mt-3 pt-2 border-t border-slate-200 text-[11px] text-amber-700 font-semibold">
+                ⚠️ Soha ne az elemet vagy akkut rántsd ki a kikapcsoláshoz!
+              </div>
+            </div>
+
+            <!-- Portok -->
+            <div class="bg-blue-50/70 rounded-xl p-4 border border-blue-200 flex flex-col justify-between">
+              <div>
+                <div class="font-bold text-blue-950 text-sm mb-1 flex items-center gap-1.5">
+                  <span>🔌</span> Portok (Csatlakozók)
+                </div>
+                <p class="text-xs text-slate-700 leading-relaxed mt-1">
+                  A kocka tetején és alján találhatók a csatlakozóaljzatok:
+                </p>
+                <div class="mt-2 space-y-2 text-xs">
+                  <div class="bg-white p-2 rounded border border-blue-100 shadow-sm">
+                    <strong class="text-blue-800">A, B, C, D (Betűs alul):</strong><br>
+                    A <strong>MOTOROK</strong> kimenetei. Alapértelmezetten <strong>B</strong> a bal kerék, <strong>C</strong> a jobb kerék.
+                  </div>
+                  <div class="bg-white p-2 rounded border border-blue-100 shadow-sm">
+                    <strong class="text-indigo-800">1, 2, 3, 4 (Számozott felül):</strong><br>
+                    A <strong>SZENZOROK</strong> bemenetei (ultrahang, szín, érintő).
+                  </div>
+                </div>
+              </div>
+              <div class="mt-2 text-[11px] text-blue-900 font-medium">
+                💡 Aranyszabály: Betű = Motor, Szám = Szenzor!
+              </div>
+            </div>
+
+            <!-- PC csatlakozó -->
+            <div class="bg-emerald-50/70 rounded-xl p-4 border border-emerald-200 flex flex-col justify-between">
+              <div>
+                <div class="font-bold text-emerald-950 text-sm mb-1 flex items-center gap-1.5">
+                  <span>💻</span> Számítógép összekötése
+                </div>
+                <p class="text-xs text-slate-700 leading-relaxed mt-1">
+                  A kocka oldalán lévő <strong>PC portba</strong> dugd be a mini-USB kábelt, a másik végét pedig a tantermi gépbe.
+                </p>
+                <div class="mt-3 bg-white p-2.5 rounded border border-emerald-100 shadow-sm text-xs text-slate-600">
+                  A gép a robotot egy sima <strong>pendrive-ként</strong> (USB meghajtóként) fogja látni.
+                </div>
+              </div>
+              <div class="mt-3 pt-2 border-t border-emerald-200 text-[11px] text-emerald-800 font-semibold">
+                ✔️ Nincs szükség driverekre vagy jelszavakra!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Lépés: MakeCode és indítási módok -->
+        <div class="mb-8">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="flex items-center justify-center w-7 h-7 rounded-full bg-slate-900 text-white font-bold text-xs">2</span>
+            <h2 class="text-lg font-extrabold text-slate-900">Miben programozunk? (A felület és indítási módok)</h2>
+          </div>
+
+          <div class="bg-gradient-to-br from-slate-900 to-indigo-950 rounded-xl p-5 text-white shadow-lg">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 mb-4">
+              <div>
+                <span class="bg-indigo-500 text-white text-[11px] font-bold px-2 py-0.5 rounded uppercase">Böngészős szoftver</span>
+                <h3 class="text-lg font-bold text-white mt-1">Microsoft MakeCode for LEGO MINDSTORMS</h3>
+                <p class="text-xs text-slate-300">Nem kell semmit telepíteni a gépre, Chrome vagy Edge böngészőben nyitható meg.</p>
+              </div>
+              <div class="bg-white/10 px-3 py-2 rounded-lg border border-white/20 text-xs">
+                <span class="text-slate-400 block text-[10px]">Webcím:</span>
+                <span class="code-font font-bold text-emerald-300">makecode.mindstorms.com</span>
+              </div>
+            </div>
+
+            <!-- 4 kártya -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+              <div class="bg-white/10 p-3 rounded-lg border border-white/10 flex flex-col justify-between">
+                <div>
+                  <strong class="text-emerald-400 block mb-1">🧩 Blokk alapú kódolás</strong>
+                  <p class="text-slate-300 leading-relaxed">
+                    Nem gépelünk: a digitális legókockákat egymásba pattintva hozzuk létre a programot.
+                  </p>
+                </div>
+              </div>
+
+              <div class="bg-white/10 p-3 rounded-lg border border-white/10 flex flex-col justify-between">
+                <div>
+                  <strong class="text-sky-400 block mb-1">🟢 Motors kategória</strong>
+                  <p class="text-slate-300 leading-relaxed">
+                    Itt találod a mozgásvezérlő blokkokat, pl. a <code class="code-font bg-black/40 px-1 py-0.5 rounded text-rose-300">steer motors</code> utasítást.
+                  </p>
+                </div>
+              </div>
+
+              <!-- On Start blokk -->
+              <div class="bg-amber-950/40 p-3 rounded-lg border border-amber-500/40 flex flex-col justify-between">
+                <div>
+                  <strong class="text-amber-300 block mb-1">▶️ On Start (Azonnali)</strong>
+                  <p class="text-slate-300 leading-relaxed">
+                    A kód a fájl rátöltésekor vagy a kocka bekapcsolásakor <strong>azonnal elindul</strong>.
+                  </p>
+                </div>
+                <div class="mt-2 text-[10px] text-amber-200">
+                  ⚠️ Vigyázz: az asztalon fekve is kilőhet a robot!
+                </div>
+              </div>
+
+              <!-- On Button blokk -->
+              <div class="bg-fuchsia-950/40 p-3 rounded-lg border border-fuchsia-400/50 flex flex-col justify-between">
+                <div>
+                  <strong class="text-fuchsia-300 block mb-1">🔘 On Brick Button (Biztonságos)</strong>
+                  <p class="text-slate-300 leading-relaxed">
+                    A kód csak akkor fut le, ha a kocka <strong>középső gombját (Enter)</strong> megnyomjátok a padlón!
+                  </p>
+                </div>
+                <div class="mt-2 text-[10px] text-emerald-300 font-semibold">
+                  ⭐ Tantermi kedvenc: van idő lerakni a startra!
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Lépés: Fájl átvitel -->
+        <div class="mb-8">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="flex items-center justify-center w-7 h-7 rounded-full bg-slate-900 text-white font-bold text-xs">3</span>
+            <h2 class="text-lg font-extrabold text-slate-900">Hogyan tesszük fel a programot a robotra?</h2>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            
+            <div class="border-2 border-slate-200 bg-white rounded-xl p-4 flex flex-col justify-between shadow-sm relative overflow-hidden">
+              <div class="absolute -right-3 -top-3 text-slate-100 font-extrabold text-6xl select-none">A</div>
+              <div class="relative z-10">
+                <div class="text-xs font-bold uppercase text-indigo-600 mb-1">1. Lépés</div>
+                <h3 class="font-bold text-slate-900 text-sm mb-2">Kattints a Letöltésre</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  A MakeCode képernyő bal alsó sarkában kattints a nagy kék <strong>„Download”</strong> (Letöltés) gombra.
+                </p>
+                <div class="mt-3 bg-indigo-50 border border-indigo-200 p-2 rounded text-[11px] text-indigo-900 code-font flex items-center justify-center gap-2 font-bold">
+                  ⬇️ Download (Letöltés)
+                </div>
+              </div>
+              <div class="mt-3 pt-2 border-t border-slate-100 text-[11px] text-slate-500">
+                A böngésző letölt egy <span class="code-font font-bold text-slate-700">.uf2</span> kiterjesztésű fájlt.
+              </div>
+            </div>
+
+            <div class="border-2 border-slate-200 bg-white rounded-xl p-4 flex flex-col justify-between shadow-sm relative overflow-hidden">
+              <div class="absolute -right-3 -top-3 text-slate-100 font-extrabold text-6xl select-none">B</div>
+              <div class="relative z-10">
+                <div class="text-xs font-bold uppercase text-indigo-600 mb-1">2. Lépés</div>
+                <h3 class="font-bold text-slate-900 text-sm mb-2">Húzd rá az EV3-ra</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  Nyisd meg a <em>Letöltések</em> mappát, és egyszerűen húzd át az elkészült fájlt az <strong>EV3 nevű meghajtóra</strong> (mint egy pendrive-ra)!
+                </p>
+                <div class="mt-3 bg-slate-100 border border-slate-200 p-2 rounded text-[11px] text-slate-700 flex items-center justify-center gap-2">
+                  📂 Fájl ➔ 🚗 EV3 Meghajtó
+                </div>
+              </div>
+              <div class="mt-3 pt-2 border-t border-slate-100 text-[11px] text-slate-500">
+                💡 Ha a böngésző támogatja a közvetlen párosítást, a gomb magától rátölti!
+              </div>
+            </div>
+
+            <div class="border-2 border-emerald-200 bg-emerald-50/50 rounded-xl p-4 flex flex-col justify-between shadow-sm relative overflow-hidden">
+              <div class="absolute -right-3 -top-3 text-emerald-100 font-extrabold text-6xl select-none">C</div>
+              <div class="relative z-10">
+                <div class="text-xs font-bold uppercase text-emerald-700 mb-1">3. Lépés</div>
+                <h3 class="font-bold text-emerald-950 text-sm mb-2">Húzd ki & Futtasd a padlón!</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  Húzd ki az USB kábelt a robotból, tedd le a padlóra a startvonalra, és indítsd el a programot (vagy nyomd meg az Enter gombot)!
+                </p>
+                <div class="mt-3 bg-emerald-600 text-white p-2 rounded text-[11px] text-center font-bold shadow-sm">
+                  ▶️ Robot letétele & Indítás!
+                </div>
+              </div>
+              <div class="mt-3 pt-2 border-t border-emerald-200 text-[11px] text-emerald-900 font-medium">
+                🎯 A kód azonnal lefut a fizikai világban!
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 4. Lépés: Tantermi szabályok -->
+        <div class="border-2 border-amber-200 bg-amber-50/70 rounded-xl p-5">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-lg">🛡️</span>
+            <h3 class="font-bold text-amber-950 text-sm md:text-base">A Sikeres Robotika Óra 4 Arany Szabálya</h3>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+            <div class="bg-white p-3 rounded-lg border border-amber-200 shadow-sm">
+              <strong class="text-amber-900 block mb-1">1. Csak a padlón!</strong>
+              <p class="text-slate-600">
+                A programozás az asztalon történik, de a robotot <strong>csak a padlón szabad elindítani</strong>, különben leesik és összetörik!
+              </p>
+            </div>
+
+            <div class="bg-white p-3 rounded-lg border border-amber-200 shadow-sm">
+              <strong class="text-amber-900 block mb-1">2. Óvatos kábelezés</strong>
+              <p class="text-slate-600">
+                Az USB-kábelt mindig a csatlakozófejnél fogva húzd ki, soha ne a vezetéket rángasd!
+              </p>
+            </div>
+
+            <div class="bg-white p-3 rounded-lg border border-amber-200 shadow-sm">
+              <strong class="text-amber-900 block mb-1">3. Csapatmunka</strong>
+              <p class="text-slate-600">
+                Egyikőtök a <strong>Pilóta</strong> (kódol a gépnél), másikótok a <strong>Navigátor</strong> (irányítja a robotot a pályán). Félidőben csere!
+              </p>
+            </div>
+
+            <div class="bg-white p-3 rounded-lg border border-amber-200 shadow-sm">
+              <strong class="text-amber-900 block mb-1">4. Szabályos kikapcsolás</strong>
+              <p class="text-slate-600">
+                Az óra végén a kockát mindig a bal felső vissza gombbal és a pipával kapcsoljuk ki, hogy megóvjuk a rendszert.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- =================================================================== -->
+    <!-- 3. MODUL 2 NÉZET: MOZGÁSVEZÉRLÉS & KORMÁNYZÁS                      -->
+    <!-- =================================================================== -->
+    <section id="view-modul-2" class="tab-content space-y-6">
+      
+      <!-- Fejléc Vissza gombbal -->
+      <div class="no-print flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <button onclick="switchTab('dashboard')" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1.5 transition">
+          ← Vissza a Modulválasztóhoz
+        </button>
+        <button onclick="switchTab('modul-1')" class="text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition">
+          ← Előző: 1. Kezdő Lépések
+        </button>
+      </div>
+
+      <!-- Fő dokumentum kártya -->
+      <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 md:p-8 page-break">
+        
+        <div class="flex items-center justify-between border-b pb-4 mb-6">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">2. Modul</span>
+            <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 mt-2">Mozgás és Kormányzás MakeCode-ban</h1>
+            <p class="text-sm text-slate-500 mt-0.5">Hogyan épül fel a robot alapvető mozgásutasítása?</p>
+          </div>
+          <div class="text-right">
+            <span class="text-xs font-semibold text-slate-400 block">7. OSZTÁLY</span>
+            <span class="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded font-mono font-bold">INFOGRAFIKA</span>
+          </div>
+        </div>
+
+        <!-- MakeCode Blokk Ábrázolás -->
+        <div class="bg-slate-900 rounded-xl p-5 mb-8 text-white shadow-inner">
+          <div class="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-3">A programozási blokk anatómiailag:</div>
+          
+          <div class="inline-flex flex-wrap items-center gap-1.5 bg-[#20923e] p-3.5 rounded-xl border-2 border-[#16652c] text-sm md:text-base code-font shadow-md">
+            <span class="text-white/90 font-bold">steer motors</span>
+            
+            <!-- 1. Portok -->
+            <span class="bg-blue-600 px-2.5 py-1 rounded border border-blue-400 font-bold text-white shadow-sm flex items-center gap-1">
+              B+C
+            </span>
+
+            <span class="text-white/90">turn ratio</span>
+
+            <!-- 2. Turn Ratio -->
+            <span class="bg-rose-500 px-2.5 py-1 rounded border border-rose-300 font-bold text-white shadow-sm">
+              0
+            </span>
+
+            <span class="text-white/90">speed</span>
+
+            <!-- 3. Speed -->
+            <span class="bg-amber-500 px-2.5 py-1 rounded border border-amber-300 font-bold text-white shadow-sm">
+              50 %
+            </span>
+
+            <span class="text-white/90">for</span>
+
+            <!-- 4. Rotations -->
+            <span class="bg-purple-600 px-2.5 py-1 rounded border border-purple-400 font-bold text-white shadow-sm">
+              10 rotations
+            </span>
+          </div>
+        </div>
+
+        <!-- Magyarázó panelek 4 oszlopban -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+          <!-- 1. Motor Portok -->
+          <div class="border-2 border-blue-200 bg-blue-50/60 rounded-xl p-4 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="w-3 h-3 rounded-full bg-blue-600"></span>
+                <h3 class="font-bold text-blue-950 text-sm md:text-base">1. Motor Portok</h3>
+              </div>
+              <div class="code-font text-xs font-bold text-blue-800 bg-blue-100 px-2 py-1 rounded inline-block mb-2">motors B+C</div>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Megadja, melyik kimenetekre kötöttük a bal és jobb hajtómotort.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-blue-200/60 text-xs text-slate-500">
+              💡 <strong>Tipp:</strong> B a bal kerék, C a jobb kerék az alap Driving Base-en.
+            </div>
+          </div>
+
+          <!-- 2. Kormányzási arány -->
+          <div class="border-2 border-rose-200 bg-rose-50/60 rounded-xl p-4 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                <h3 class="font-bold text-rose-950 text-sm md:text-base">2. Kormányzás</h3>
+              </div>
+              <div class="code-font text-xs font-bold text-rose-800 bg-rose-100 px-2 py-1 rounded inline-block mb-2">turn ratio 0</div>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                A kanyarodás iránya és íve (-100-tól +100-ig):
+              </p>
+              <ul class="text-xs text-slate-700 mt-2 space-y-1">
+                <li>• <strong class="text-rose-700">0:</strong> teljesen egyenes menet</li>
+                <li>• <strong class="text-rose-700">+50:</strong> lágy kanyar jobbra</li>
+                <li>• <strong class="text-rose-700">+100:</strong> helyben fordulás jobbra</li>
+                <li>• <strong class="text-rose-700">-100:</strong> helyben fordulás balra</li>
+              </ul>
+            </div>
+            <div class="mt-4 pt-3 border-t border-rose-200/60 text-xs text-slate-500">
+              💡 A motorok fordulatszám-különbségével kanyarodik.
+            </div>
+          </div>
+
+          <!-- 3. Sebesség -->
+          <div class="border-2 border-amber-200 bg-amber-50/60 rounded-xl p-4 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                <h3 class="font-bold text-amber-950 text-sm md:text-base">3. Sebesség</h3>
+              </div>
+              <div class="code-font text-xs font-bold text-amber-800 bg-amber-100 px-2 py-1 rounded inline-block mb-2">speed 50 %</div>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                A motorok forgási ereje százalékban megadva:
+              </p>
+              <ul class="text-xs text-slate-700 mt-2 space-y-1">
+                <li>• <strong class="text-amber-800">10–30%:</strong> lassú, precíz manőver</li>
+                <li>• <strong class="text-amber-800">50%:</strong> ideális gyakorlósebesség</li>
+                <li>• <strong class="text-amber-800">100%:</strong> maximális tempó</li>
+              </ul>
+            </div>
+            <div class="mt-4 pt-3 border-t border-amber-200/60 text-xs text-slate-500">
+              💡 <strong>Fontos:</strong> Negatív értékkel (pl. -50%) a robot hátrafelé tolat!
+            </div>
+          </div>
+
+          <!-- 4. Mennyiség / Fordulat -->
+          <div class="border-2 border-purple-200 bg-purple-50/60 rounded-xl p-4 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="w-3 h-3 rounded-full bg-purple-600"></span>
+                <h3 class="font-bold text-purple-950 text-sm md:text-base">4. Távolság</h3>
+              </div>
+              <div class="code-font text-xs font-bold text-purple-800 bg-purple-100 px-2 py-1 rounded inline-block mb-2">10 rotations</div>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Meddig hajtson a motor. <strong>Rotations = kerékfordulat</strong>.
+              </p>
+              <div class="bg-purple-100/70 p-2 rounded mt-2 text-[11px] text-purple-900 leading-snug">
+                <strong>Számítás:</strong><br>
+                Kerék átmérője: 5,6 cm<br>
+                1 fordulat ≈ 17,6 cm<br>
+                <strong>10 fordulat ≈ 176 cm!</strong>
+              </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-purple-200/60 text-xs text-slate-500">
+              💡 Pontosabb, mint a másodperc alapú időzítés!
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Fordulási Puska (90 fokos kanyar) -->
+        <div class="mt-8 bg-gradient-to-r from-slate-900 to-indigo-950 rounded-xl p-5 text-white shadow-lg">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="bg-indigo-500 text-white text-xs font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Trükk & Tudásbázis</span>
+            <h2 class="text-lg font-bold text-white">Hogyan fordul pontosan 90 fokot a robot?</h2>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs mt-3">
+            <div class="bg-white/10 rounded-lg p-3.5 border border-white/10">
+              <div class="font-bold text-emerald-400 text-sm mb-1">🔄 Tank Turn (Helyben fordulás)</div>
+              <p class="text-slate-200 leading-relaxed">
+                Beállítás: <code class="code-font bg-black/40 px-1.5 py-0.5 rounded text-rose-300">turn ratio: 100</code> (vagy -100).<br>
+                A kerekek ellentétes irányba forognak, a robot a középpontja körül forog.
+              </p>
+              <div class="mt-2 text-amber-300 bg-amber-950/40 p-2 rounded border border-amber-500/30">
+                ⚠️ <strong>Aranyszabály:</strong> 90°-os robottest-elforduláshoz a keréknek <strong>NEM 90°-ot vagy 1 teljes fordulatot</strong> kell megtennie, hanem csak kb. <strong>0.5 – 0.65 fordulatot</strong>!
+              </div>
+            </div>
+
+            <div class="bg-white/10 rounded-lg p-3.5 border border-white/10">
+              <div class="font-bold text-sky-400 text-sm mb-1">📐 Pivot Turn (Egyik keréken fordulás)</div>
+              <p class="text-slate-200 leading-relaxed">
+                Beállítás: <code class="code-font bg-black/40 px-1.5 py-0.5 rounded text-rose-300">turn ratio: 50</code> (vagy -50).<br>
+                Az egyik kerék áll, a másik kerék megkerüli. Ívesebb, nagyobb helyet igénylő kanyar.
+              </p>
+              <div class="mt-2 text-sky-200 bg-sky-950/40 p-2 rounded border border-sky-500/30">
+                💡 <strong>Tipp:</strong> Szűk terepen és akadályok között mindig a helyben fordulás (<code class="code-font text-white">turn ratio: 100</code>) a legpontosabb!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 Szintes Mini Küldetés -->
+        <div class="mt-8">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-xl font-extrabold text-slate-900">🚀 3 Szintes Tantermi Kihívás</h2>
+              <p class="text-xs text-slate-500">Kísérletezzétek ki a pontos értékeket párban a padlón!</p>
+            </div>
+            <span class="text-xs font-bold text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">Gyakorló feladatok</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- 1. Szint -->
+            <div class="border-2 border-emerald-200 bg-emerald-50/50 rounded-xl p-4 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-bold bg-emerald-600 text-white px-2 py-0.5 rounded">1. SZINT</span>
+                  <span class="text-sm">🥉</span>
+                </div>
+                <h3 class="font-bold text-emerald-950 text-sm mb-1">Precíziós Parkolás</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  Indulj a startvonalról, és állj meg pontosan a <strong>1,5 méterre</strong> lévő parkolónégyzetben úgy, hogy egyik kerék se lógjon túl a vonalon!
+                </p>
+              </div>
+              <div class="mt-3 pt-2 border-t border-emerald-200 text-[11px] text-emerald-800 font-medium">
+                🎯 Cél: A helyes <strong>rotations</strong> érték kikísérletezése (tipp: 8 és 9 között).
+              </div>
+            </div>
+
+            <!-- 2. Szint -->
+            <div class="border-2 border-blue-200 bg-blue-50/50 rounded-xl p-4 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-bold bg-blue-600 text-white px-2 py-0.5 rounded">2. SZINT</span>
+                  <span class="text-sm">🥈</span>
+                </div>
+                <h3 class="font-bold text-blue-950 text-sm mb-1">Tolatás a Bázisra</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  Gurulj el a parkolóig, ott állj meg 1 másodpercre (<code class="code-font bg-blue-100 px-1 rounded">pause 1000 ms</code>), majd negatív sebességgel tolass vissza hajszálpontosan a startra!
+                </p>
+              </div>
+              <div class="mt-3 pt-2 border-t border-blue-200 text-[11px] text-blue-800 font-medium">
+                🎯 Cél: Negatív sebesség (<code class="code-font">-50%</code>) kipróbálása.
+              </div>
+            </div>
+
+            <!-- 3. Szint -->
+            <div class="border-2 border-purple-200 bg-purple-50/50 rounded-xl p-4 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-bold bg-purple-600 text-white px-2 py-0.5 rounded">3. SZINT</span>
+                  <span class="text-sm">🥇</span>
+                </div>
+                <h3 class="font-bold text-purple-950 text-sm mb-1">L-Kanyar (Akadálykerülés)</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  Helyezzetek el egy vizespalackot akadályként! Menj előre 4 fordulatot, fordulj jobbra 90°-ot helyben, majd menj még 3 fordulatot a garázsba!
+                </p>
+              </div>
+              <div class="mt-3 pt-2 border-t border-purple-200 text-[11px] text-purple-800 font-medium">
+                🎯 Cél: Két mozgásblokk összekapcsolása egy fordulással.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gyors Tantermi Hibakereső -->
+        <div class="mt-8 bg-amber-50/70 border-2 border-amber-200 rounded-xl p-5">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-base">🛠️</span>
+            <h3 class="font-bold text-amber-950 text-sm md:text-base">Mérnöki Hibakereső (Ha valami nem úgy működik, ahogy tervezted)</h3>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+            <div class="bg-white p-3 rounded-lg border border-amber-200 shadow-sm">
+              <strong class="text-rose-600 block mb-1">❓ Balra megy jobbra helyett?</strong>
+              <p class="text-slate-600">
+                Valószínűleg felcserélődött a <strong>B</strong> és <strong>C</strong> kábel! B mindig a bal oldali motor, C a jobb oldali.
+              </p>
+            </div>
+
+            <div class="bg-white p-3 rounded-lg border border-amber-200 shadow-sm">
+              <strong class="text-amber-700 block mb-1">❓ Túlcsúszik vagy ferdén áll meg?</strong>
+              <p class="text-slate-600">
+                Túl nagy a sebesség és a tehetetlenség! Vedd le a tempót <strong>50%-ról 30%-ra</strong> a precíz manőverekhez.
+              </p>
+            </div>
+
+            <div class="bg-white p-3 rounded-lg border border-amber-200 shadow-sm">
+              <strong class="text-indigo-700 block mb-1">❓ Nem reagál az indításra?</strong>
+              <p class="text-slate-600">
+                Ellenőrizd az USB-kábelt, vagy hogy a kockán megjelent-e a zöld futtatás jelző ikon.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-center justify-between text-xs text-slate-600">
+          <div>
+            <strong class="text-slate-800">Hogyan bővíthető a blokk?</strong> Kattints a MakeCode-ban a blokk jobb szélén lévő kis <span class="bg-emerald-600 text-white font-bold px-1.5 py-0.5 rounded text-[11px]">+</span> jelre, hogy beállíthasd a fordulatszámot vagy időtartamot!
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Globális Lábléc -->
+  <footer class="no-print bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div>LEGO MINDSTORMS EV3 & Microsoft MakeCode • 7. Osztályos Robotika Tananyag</div>
+      <div class="font-mono text-slate-400">Készült a tantermi és otthoni felkészüléshez 🚀</div>
+    </div>
+  </footer>
+
+  <script>
+    // Tab és Navigációkezelő
+    function switchTab(tabId) {
+      // Összes lap rejtése
+      document.querySelectorAll('.tab-content').forEach(function(tab) {
+        tab.classList.remove('active');
+      });
+
+      // Kijelölt lap megjelenítése
+      var target = document.getElementById('view-' + tabId);
+      if (target) {
+        target.classList.add('active');
+      }
+
+      // Navigációs gombok stílusfrissítése
+      document.querySelectorAll('.nav-btn').forEach(function(btn) {
+        btn.classList.remove('text-indigo-700', 'bg-indigo-50', 'border-indigo-200');
+        btn.classList.add('text-slate-600', 'border-transparent');
+      });
+
+      var activeNavBtn = document.getElementById('nav-btn-' + tabId);
+      if (activeNavBtn) {
+        activeNavBtn.classList.add('text-indigo-700', 'bg-indigo-50', 'border-indigo-200');
+        activeNavBtn.classList.remove('text-slate-600', 'border-transparent');
+      }
+
+      // URL hash frissítése (hogy közvetlenül linkelhető legyen pl. #modul-2)
+      if (history.pushState) {
+        history.pushState(null, null, '#' + tabId);
+      } else {
+        location.hash = '#' + tabId;
+      }
+
+      // Vissza a lap tetejére
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Hash alapú betöltés (ha valaki a #modul-1 linkkel nyitja meg a böngészőben)
+    window.addEventListener('DOMContentLoaded', function() {
+      var hash = window.location.hash.replace('#', '');
+      if (hash && (hash === 'dashboard' || hash === 'modul-1' || hash === 'modul-2')) {
+        switchTab(hash);
+      }
+      calcFromRotations();
+    });
+
+    // Kerékfordulat kalkulátor logika (Átmérő: 5.6 cm, Kerület = 5.6 * PI ≈ 17.5929 cm)
+    var WHEEL_CIRCUMFERENCE = 5.6 * Math.PI; // ~17.5929 cm
+
+    function calcFromRotations() {
+      var rotInput = document.getElementById('calc-rotations');
+      var distInput = document.getElementById('calc-distance');
+      var resultBox = document.getElementById('calc-result');
+
+      var rot = parseFloat(rotInput.value) || 0;
+      var cm = rot * WHEEL_CIRCUMFERENCE;
+      distInput.value = Math.round(cm);
+
+      resultBox.innerHTML = rot + ' fordulat ≈ <span class="text-white">' + cm.toFixed(1) + ' cm</span>';
+    }
+
+    function calcFromDistance() {
+      var rotInput = document.getElementById('calc-rotations');
+      var distInput = document.getElementById('calc-distance');
+      var resultBox = document.getElementById('calc-result');
+
+      var cm = parseFloat(distInput.value) || 0;
+      var rot = cm / WHEEL_CIRCUMFERENCE;
+      rotInput.value = rot.toFixed(2);
+
+      resultBox.innerHTML = cm + ' cm ≈ <span class="text-white">' + rot.toFixed(2) + ' fordulat</span>';
+    }
+  </script>
+
+</body>
+</html>
